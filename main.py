@@ -71,7 +71,7 @@ def postOnlineUsers(xuids):
 
 def postJoinedXuid(xuid):
   tag = getGamertag(xuid)
-  print(tag + 'joined')
+  print(tag + ' joined')
   requests.post(
     DISCORD_WEBHOOK,
     headers={
@@ -82,7 +82,7 @@ def postJoinedXuid(xuid):
 
 def postLeavedXuid(xuid):
   tag = getGamertag(xuid)
-  print(tag + 'leaved')
+  print(tag + ' leaved')
   requests.post(
     DISCORD_WEBHOOK,
     headers={
@@ -102,13 +102,15 @@ while True:
     state = presence["lastSeenState"]
     xuid = presence["xuid"]
     if state == "InGame":
-      onlineXuids.append(presence["xuid"])
+      onlineXuids.append(xuid)
       if xuid in offlineXuids:
         postJoinedXuid(xuid)
+        offlineXuids.remove(xuid)
     elif state == "NotInClub":
-      offlineXuids.append(presence["xuid"])
+      offlineXuids.append(xuid)
       if xuid in onlineXuids:
         postLeavedXuid(xuid)
+        onlineXuids(xuid)
     else:
       print('error!! : ' + presence)
   time.sleep(30)
