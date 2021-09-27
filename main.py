@@ -110,7 +110,7 @@ while True:
       offlineXuids.append(xuid)
       if xuid in onlineXuids:
         postLeavedXuid(xuid)
-        onlineXuids(xuid)
+        onlineXuids.remove(xuid)
     else:
       print('error!! : ' + presence)
   time.sleep(30)
