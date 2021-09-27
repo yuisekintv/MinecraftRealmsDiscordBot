@@ -91,26 +91,24 @@ def postLeavedXuid(xuid):
     data=json.dumps({"content": tag + "が台東区から旅立ちました"})
   )
 
-onlineXuids = []
-offlineXuids = []
+xuids = {}
 
 while True:
   print()
+  print(xuids)
   clubXuids = getClubPresences(REALMS_CLUB_ID)
   for presence in clubXuids:
     print(presence)
     state = presence["lastSeenState"]
     xuid = presence["xuid"]
-    if state == "InGame":
-      onlineXuids.append(xuid)
-      if xuid in offlineXuids:
-        postJoinedXuid(xuid)
-        offlineXuids.remove(xuid)
-    elif state == "NotInClub":
-      offlineXuids.append(xuid)
-      if xuid in onlineXuids:
-        postLeavedXuid(xuid)
-        onlineXuids.remove(xuid)
+    if xuid in xuids:
+      before_state = xuids[xuid]
+      if before_state != state:
+        if state == "InGame":
+          postJoinedXuid(xuid)
+        elif state == "NotInClub":
+          postLeavedXuid(xuid)
+      xuids[xuid] = state
     else:
-      print('error!! : ' + presence)
-  time.sleep(30)
+      xuids[xuid] = state
+  time.sleep(10)
