@@ -4,7 +4,7 @@ import json
 import requests
 from dotenv import load_dotenv
 
-dotenv_path = join(dirname(__file__), '.env')
+dotenv_path = join(dirname(__file__), ".env")
 load_dotenv(dotenv_path)
 
 OPENXBL_TOKEN = os.environ.get("OPENXBL_TOKEN")
@@ -27,7 +27,7 @@ def getClubPresences(clubid):
   return presences
 
 def getGamertag(xuid):
-  path = './tmp/xuid_' + xuid + '.txt'
+  path = "./tmp/xuid_" + xuid + ".txt"
   if os.path.isfile(path):
     with open(path) as f:
       s = f.read()
@@ -49,9 +49,9 @@ def postNobody():
   res = requests.post(
     DISCORD_WEBHOOK,
     headers={
-      'Content-Type': 'application/json'
+      "Content-Type": "application/json"
     },
-    data=json.dumps({'content': '台東区にはだれもいません'})
+    data=json.dumps({"content": "台東区にはだれもいません"})
   )
 
 def postPresences(presences):
@@ -63,9 +63,9 @@ def postPresences(presences):
   res = requests.post(
     DISCORD_WEBHOOK,
     headers={
-      'Content-Type': 'application/json'
+      "Content-Type": "application/json"
     },
-    data=json.dumps({'content': '台東区にいる住民：\n' + '\n'.join(tags)})
+    data=json.dumps({"content": "台東区にいる住民：\n" + "\n".join(tags)})
   )
 
 
