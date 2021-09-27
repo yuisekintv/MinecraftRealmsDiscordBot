@@ -41,7 +41,7 @@ def getGamertag(xuid):
     for setting in person_json["profileUsers"][0]["settings"]:
       if setting["id"] == "Gamertag":
         tag = setting["value"]
-        with open(path, mode='w') as f:
+        with open(path, mode="w") as f:
           s = f.write(tag)
         return setting["value"]
 
