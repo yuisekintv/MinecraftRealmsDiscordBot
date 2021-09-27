@@ -1,5 +1,6 @@
 import os
 from os.path import join, dirname
+import time
 import json
 import requests
 from dotenv import load_dotenv
@@ -27,9 +28,9 @@ def getClubPresences(clubid):
   return presences
 
 def getGamertag(xuid):
-  path = "./tmp/xuid_" + xuid + ".txt"
-  if os.path.isfile(path):
-    with open(path) as f:
+  xuid_path = "./tmp/xuid_" + xuid + ".txt"
+  if os.path.isfile(xuid_path):
+    with open(xuid_path) as f:
       s = f.read()
       return s
   else:
@@ -41,7 +42,7 @@ def getGamertag(xuid):
     for setting in person_json["profileUsers"][0]["settings"]:
       if setting["id"] == "Gamertag":
         tag = setting["value"]
-        with open(path, mode="w") as f:
+        with open(xuid_path, mode="w") as f:
           s = f.write(tag)
         return setting["value"]
 
@@ -54,10 +55,10 @@ def postNobody():
     data=json.dumps({"content": "台東区にはだれもいません"})
   )
 
-def postPresences(presences):
+def postOnlineUsers(xuids):
   tags = []
-  for presence in presences:
-    tag = getGamertag(presence)
+  for xuid in xuids:
+    tag = getGamertag(xuid)
     tags.append(tag)
   print(tags)
   res = requests.post(
@@ -68,18 +69,46 @@ def postPresences(presences):
     data=json.dumps({"content": "台東区にいる住民：\n" + "\n".join(tags)})
   )
 
+def postJoinedXuid(xuid):
+  tag = getGamertag(xuid)
+  print(tag + 'joined')
+  requests.post(
+    DISCORD_WEBHOOK,
+    headers={
+      "Content-Type": "application/json"
+    },
+    data=json.dumps({"content": tag + "が台東区に帰ってきました"})
+  )
 
+def postLeavedXuid(xuid):
+  tag = getGamertag(xuid)
+  print(tag + 'leaved')
+  requests.post(
+    DISCORD_WEBHOOK,
+    headers={
+      "Content-Type": "application/json"
+    },
+    data=json.dumps({"content": tag + "が台東区から旅立ちました"})
+  )
 
-presences = getClubPresences(REALMS_CLUB_ID)
+onlineXuids = []
+offlineXuids = []
 
-onlinePresences = []
-for presence in presences:
-  if presence["lastSeenState"] == "InGame":
-    onlinePresences.append(presence["xuid"])
-
-print(onlinePresences)
-
-if len(onlinePresences) == 0:
-  postNobody()
-else:
-  postPresences(onlinePresences)
+while True:
+  print()
+  clubXuids = getClubPresences(REALMS_CLUB_ID)
+  for presence in clubXuids:
+    print(presence)
+    state = presence["lastSeenState"]
+    xuid = presence["xuid"]
+    if state == "InGame":
+      onlineXuids.append(presence["xuid"])
+      if xuid in offlineXuids:
+        postJoinedXuid(xuid)
+    elif state == "NotInClub":
+      offlineXuids.append(presence["xuid"])
+      if xuid in onlineXuids:
+        postLeavedXuid(xuid)
+    else:
+      print('error!! : ' + presence)
+  time.sleep(30)
