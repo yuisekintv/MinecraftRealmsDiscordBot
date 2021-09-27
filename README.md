@@ -6,6 +6,14 @@ This is the Discord bot that notify who are online on the Mincraft Realms.
 
 ## How to use?
 
+- I recommend to use `pyenv`
+  - https://github.com/pyenv/pyenv
+- Install Python 3.8.6`
+- Install `requirements.txt`
+  - `pip install -r requirements.txt`
+- Setup `.env`
+- Run `python main.py`
+
 You must add `.env` file and put the following environment variables:
 
 - `OPENXBL_TOKEN`
