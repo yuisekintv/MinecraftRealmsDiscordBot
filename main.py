@@ -69,6 +69,15 @@ def postOnlineUsers(xuids):
     data=json.dumps({"content": "台東区にいる住民：\n" + "\n".join(tags)})
   )
 
+def postLaunchBot():
+  requests.post(
+    DISCORD_WEBHOOK,
+    headers={
+      "Content-Type": "application/json"
+    },
+    data=json.dumps({"content": "広報たいとうが起動しました"})
+  )
+
 def postJoinedXuid(xuid):
   tag = getGamertag(xuid)
   print(tag + ' joined')
@@ -93,22 +102,32 @@ def postLeavedXuid(xuid):
 
 xuids = {}
 
+launched = True
+
+postLaunchBot()
 while True:
   print()
   print(xuids)
-  clubXuids = getClubPresences(REALMS_CLUB_ID)
-  for presence in clubXuids:
-    print(presence)
-    state = presence["lastSeenState"]
-    xuid = presence["xuid"]
-    if xuid in xuids:
-      before_state = xuids[xuid]
-      if before_state != state:
-        if state == "InGame":
-          postJoinedXuid(xuid)
-        elif state == "NotInClub":
-          postLeavedXuid(xuid)
-      xuids[xuid] = state
-    else:
-      xuids[xuid] = state
+  try:
+    clubXuids = getClubPresences(REALMS_CLUB_ID)
+    for presence in clubXuids:
+      print(presence)
+      state = presence["lastSeenState"]
+      xuid = presence["xuid"]
+      if launched and state == "InGame":
+        postJoinedXuid(xuid)
+      if xuid in xuids:
+        before_state = xuids[xuid]
+        if before_state != state:
+          if state == "InGame":
+            postJoinedXuid(xuid)
+          elif state == "NotInClub":
+            postLeavedXuid(xuid)
+        xuids[xuid] = state
+      else:
+        xuids[xuid] = state
+  except:
+    import traceback
+    traceback.print_exc()
   time.sleep(10)
+  launched = False
